@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"pos/helper"
 	"pos/transaction"
@@ -53,6 +54,83 @@ func (h *transactionHandler) NewTransaction(c *gin.Context) {
 	)
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *transactionHandler) GetAllTransactions(c *gin.Context) {
+	amount := c.DefaultQuery("amount", "amount desc")
+	date := c.DefaultQuery("date", "date desc")
+	transactionType := c.DefaultQuery("type", "e")
+	fromAmount := c.DefaultQuery("from", "1000")
+	toAmount := c.DefaultQuery("to", "9999999999999999")
+	limit := c.DefaultQuery("limit", "10")
+	page := c.DefaultQuery("page", "1")
+
+	fromAmountNumber, err := helper.ConvertStringToInt(fromAmount)
+	if err != nil {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"failed to convert string",
+			err.Error(),
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	toAmountNumber, err := helper.ConvertStringToInt(toAmount)
+	if err != nil {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"failed to convert string",
+			err.Error(),
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	limitNumber, err := helper.ConvertStringToInt(limit)
+	if err != nil {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"failed to convert string",
+			err.Error(),
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	pageNumber, err := helper.ConvertStringToInt(page)
+	if err != nil {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"failed to convert string",
+			err.Error(),
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	params := transaction.ParamsGetAllTransaction{
+		Amount:          amount,
+		Date:            date,
+		TransactionType: transactionType,
+		FromAmount:      fromAmountNumber,
+		ToAmount:        toAmountNumber,
+		Limit:           limitNumber,
+		Page:            pageNumber,
+	}
+
+	path := c.Request.URL.Path
+	url := fmt.Sprintf("http://localhost:2222%v", path)
+	h.transactionService.GetAllTransaction(params, url)
+
+	c.JSON(200, map[string]interface{}{
+		"params": params,
+		"url":    url,
+	})
 }
 
 func (h *transactionHandler) UpdateTransactionByID(c *gin.Context) {
