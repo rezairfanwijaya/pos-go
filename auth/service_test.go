@@ -2,7 +2,7 @@ package auth
 
 import "testing"
 
-var AuthService = authService{}
+var AuthService = Service{}
 
 func TestGenerateToken(t *testing.T) {
 	token, err := AuthService.GenerateTokenJWT(12)

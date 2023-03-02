@@ -12,13 +12,13 @@ type IAuthService interface {
 	VerifyTokenJWT(token string) (*jwt.Token, error)
 }
 
-type authService struct{}
+type Service struct{}
 
-func NewAuthService() *authService {
-	return &authService{}
+func NewAuthService() *Service {
+	return &Service{}
 }
 
-func (s *authService) GenerateTokenJWT(userID int) (string, error) {
+func (s *Service) GenerateTokenJWT(userID int) (string, error) {
 	// payload
 	claim := jwt.MapClaims{}
 	claim["user_id"] = userID
@@ -43,7 +43,7 @@ func (s *authService) GenerateTokenJWT(userID int) (string, error) {
 	return tokenSigned, nil
 }
 
-func (s *authService) VerifyTokenJWT(token string) (*jwt.Token, error) {
+func (s *Service) VerifyTokenJWT(token string) (*jwt.Token, error) {
 	tokenParsed, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		_, ok := t.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
