@@ -2,12 +2,15 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"pos/auth"
 	"pos/database"
 	"pos/handler"
 	"pos/helper"
 	"pos/user"
+	"strings"
 
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -36,7 +39,6 @@ func main() {
 	// route
 	apiV1.POST("/login", userHandler.Login)
 
-	
 	env, err := helper.GetENV(".env")
 	if err != nil {
 		log.Fatal(err)
@@ -44,5 +46,76 @@ func main() {
 
 	if err := r.Run(env["DOMAIN"]); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// get header authorization
+		authHeader := c.GetHeader("Authorization")
+
+		// must contain bearer
+		if !strings.Contains(authHeader, "Bearer") {
+			response := helper.GenerateResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"Access denied",
+			)
+
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+
+		// get jwt
+		tokenString := ""
+		headerSplit := strings.Split(authHeader, " ")
+		if len(headerSplit) == 2 {
+			tokenString = headerSplit[1]
+		}
+
+		// jwt validate
+		token, err := authService.VerifyTokenJWT(tokenString)
+		if err != nil {
+			response := helper.GenerateResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"Invalid Token",
+			)
+
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+
+		// get payload
+		claim, ok := token.Claims.(jwt.MapClaims)
+		if !ok || token.Valid {
+			response := helper.GenerateResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"Invalid Token",
+			)
+
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+
+		// get userid from payload
+		userID := int(claim["user_id"].(float64))
+
+		// get user by userid in token
+		userByUserID, err := userService.GetUserByID(userID)
+		if err != nil {
+			response := helper.GenerateResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				"Invalid Token",
+			)
+
+			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+
+		// set context
+		c.Set("currentUser", userByUserID)
 	}
 }
