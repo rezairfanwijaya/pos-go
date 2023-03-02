@@ -68,7 +68,8 @@ func FormatingErrorBinding(err error) (errBinding []string) {
 	return errBinding
 }
 
-func TimeParser(layout, dateString string) (result time.Time, err error) {
+func TimeParser(dateString string) (result time.Time, err error) {
+	layout := "2006-01-02 15:04:05"
 	result, err = time.Parse(layout, dateString)
 	if err != nil {
 		return result, fmt.Errorf(
