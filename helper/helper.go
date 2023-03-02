@@ -1,6 +1,9 @@
 package helper
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
@@ -63,4 +66,16 @@ func FormatingErrorBinding(err error) (errBinding []string) {
 	}
 
 	return errBinding
+}
+
+func TimeParser(layout, dateString string) (result time.Time, err error) {
+	result, err = time.Parse(layout, dateString)
+	if err != nil {
+		return result, fmt.Errorf(
+			"failed parsing date: %v",
+			err.Error(),
+		)
+	}
+
+	return result, nil
 }
