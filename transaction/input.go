@@ -13,3 +13,13 @@ type InputEditTransaction struct {
 	Date   string `json:"date" binding:"required"`
 	Type   string `json:"type" binding:"required"`
 }
+
+type ParamsGetAllTransaction struct {
+	Amount          string
+	Date            string
+	TransactionType string
+	FromAmount      int
+	ToAmount        int
+	Limit           int
+	Page            int
+}

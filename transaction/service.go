@@ -7,6 +7,7 @@ import (
 
 type IService interface {
 	CreateTransaction(input InputNewTransaction) (Transaction, error)
+	GetAllTransaction(params ParamsGetAllTransaction, url string) (PaginationTransaction, error)
 	UpdateTransaction(input InputEditTransaction, transactionID int) (Transaction, error)
 	DeleteTransactionByID(transactionID int) error
 }
@@ -43,6 +44,21 @@ func (s *service) CreateTransaction(input InputNewTransaction) (Transaction, err
 	}
 
 	return transactionSaved, nil
+}
+
+func (s *service) GetAllTransaction(params ParamsGetAllTransaction, url string) (PaginationTransaction, error) {
+	var paginationTransaction PaginationTransaction
+	offset := params.Page * params.Limit
+
+	_, _, _, err := s.transactionRepo.FindAll(params, offset)
+	if err != nil {
+		return PaginationTransaction{}, err
+	}
+
+	paginationTransaction.FirstPage = fmt.Sprintf("%s", "lupa")
+
+	return PaginationTransaction{}, nil
+
 }
 
 func (s *service) UpdateTransaction(input InputEditTransaction, transactionID int) (Transaction, error) {
