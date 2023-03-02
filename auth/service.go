@@ -26,7 +26,7 @@ func (s *authService) GenerateTokenJWT(userID int) (string, error) {
 	// header
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
-	env, err := helper.GetENV("../.env")
+	env, err := helper.GetENV(".env")
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +50,7 @@ func (s *authService) VerifyTokenJWT(token string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("invalid token")
 		}
 
-		env, err := helper.GetENV("../.env")
+		env, err := helper.GetENV(".env")
 		if err != nil {
 			return env, err
 		}
