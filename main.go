@@ -7,6 +7,7 @@ import (
 	"pos/database"
 	"pos/handler"
 	"pos/helper"
+	"pos/transaction"
 	"pos/user"
 	"strings"
 
@@ -29,6 +30,11 @@ func main() {
 	userService := user.NewService(userRepo)
 	userHandler := handler.NewHandlerUser(userService, authService)
 
+	// transaction
+	transactionRepo := transaction.NewRepository(connection)
+	transactionService := transaction.NewService(transactionRepo)
+	transactionHandler := handler.NewHandlerTransaction(transactionService)
+
 	// init service
 	r := gin.Default()
 	r.Use(cors.Default())
@@ -38,6 +44,10 @@ func main() {
 
 	// route
 	apiV1.POST("/login", userHandler.Login)
+	apiV1.POST(
+		"/transaction",
+		authMiddleware(*authService, *userService), transactionHandler.NewTransaction,
+	)
 
 	env, err := helper.GetENV(".env")
 	if err != nil {
@@ -79,7 +89,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 			response := helper.GenerateResponse(
 				http.StatusUnauthorized,
 				"Unauthorized",
-				"Invalid Token",
+				err.Error(),
 			)
 
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
@@ -88,7 +98,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 
 		// get payload
 		claim, ok := token.Claims.(jwt.MapClaims)
-		if !ok || token.Valid {
+		if !ok || !token.Valid {
 			response := helper.GenerateResponse(
 				http.StatusUnauthorized,
 				"Unauthorized",
@@ -108,7 +118,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 			response := helper.GenerateResponse(
 				http.StatusUnauthorized,
 				"Unauthorized",
-				"Invalid Token",
+				err.Error(),
 			)
 
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
