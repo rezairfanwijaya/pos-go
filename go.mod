@@ -9,6 +9,8 @@ require (
 	gorm.io/gorm v1.24.5
 )
 
+require github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1 // indirect
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
