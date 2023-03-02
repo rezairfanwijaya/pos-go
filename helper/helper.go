@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -79,4 +80,16 @@ func TimeParser(dateString string) (result time.Time, err error) {
 	}
 
 	return result, nil
+}
+
+func ConvertStringToInt(value string) (int, error) {
+	number, err := strconv.Atoi(value)
+	if err != nil {
+		return number, fmt.Errorf(
+			"failed convert string: %v",
+			err.Error(),
+		)
+	}
+
+	return number, nil
 }
