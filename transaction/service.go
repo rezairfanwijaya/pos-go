@@ -8,6 +8,7 @@ import (
 
 type IService interface {
 	CreateTransaction(input InputTransaction) (Transaction, error)
+	DeleteTransactionByID(transactionID int) error
 }
 
 type service struct {
@@ -41,4 +42,25 @@ func (s *service) CreateTransaction(input InputTransaction) (Transaction, error)
 	}
 
 	return transactionSaved, nil
+}
+
+func (s *service) DeleteTransactionByID(transactionID int) error {
+	// is transaction available
+	transactionByID, err := s.transactionRepo.FindByID(transactionID)
+	if err != nil {
+		return err
+	}
+
+	if transactionByID.ID == 0 {
+		return fmt.Errorf(
+			"transaction not found",
+		)
+	}
+
+	// delete
+	if err := s.transactionRepo.DeleteByID(transactionID); err != nil {
+		return err
+	}
+
+	return nil
 }
