@@ -20,7 +20,7 @@ func NewHandlerTransaction(
 }
 
 func (h *transactionHandler) NewTransaction(c *gin.Context) {
-	var input transaction.InputTransaction
+	var input transaction.InputNewTransaction
 
 	if err := c.BindJSON(&input); err != nil {
 		errBinding := helper.FormatingErrorBinding(err)
@@ -50,6 +50,56 @@ func (h *transactionHandler) NewTransaction(c *gin.Context) {
 		http.StatusOK,
 		"success",
 		newTransaction,
+	)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *transactionHandler) UpdateTransactionByID(c *gin.Context) {
+	id := c.Param("id")
+
+	transactionID, err := strconv.Atoi(id)
+	if err != nil || transactionID < 1 {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"invalid id transaction",
+			"id must be int and grather than 0",
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// binding input
+	var input transaction.InputEditTransaction
+	if err := c.BindJSON(&input); err != nil {
+		errBinding := helper.FormatingErrorBinding(err)
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"invalid input",
+			errBinding,
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	transactionUpdated, err := h.transactionService.UpdateTransaction(input, transactionID)
+	if err != nil {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"failed to update transaction",
+			err.Error(),
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.GenerateResponse(
+		http.StatusOK,
+		"success",
+		transactionUpdated,
 	)
 
 	c.JSON(http.StatusOK, response)
