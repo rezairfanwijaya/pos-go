@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"pos/helper"
+	"pos/user"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -36,6 +37,21 @@ func NewConnection(path string) (*gorm.DB, error) {
 	if err != nil {
 		return db, fmt.Errorf(
 			"failed create connection : %v",
+			err.Error(),
+		)
+	}
+
+	// migartion schema
+	if err := db.AutoMigrate(&user.User{}); err != nil {
+		return db, fmt.Errorf(
+			"failed migration scheme : %v",
+			err.Error(),
+		)
+	}
+
+	if err := migration(db); err != nil {
+		return db, fmt.Errorf(
+			"failed migration data : %v",
 			err.Error(),
 		)
 	}
