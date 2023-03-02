@@ -47,6 +47,7 @@ func main() {
 	apiV1.POST("/transaction/create", authMiddleware(*authService, *userService), transactionHandler.NewTransaction)
 	apiV1.PUT("/transaction/update/:id", authMiddleware(*authService, *userService), transactionHandler.UpdateTransactionByID)
 	apiV1.DELETE("/transaction/delete/:id", authMiddleware(*authService, *userService), transactionHandler.DeleteTransactionByID)
+	apiV1.GET("transaction/show", transactionHandler.GetAllTransactions)
 
 	env, err := helper.GetENV(".env")
 	if err != nil {
