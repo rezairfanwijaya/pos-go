@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"pos/helper"
+	"pos/transaction"
 	"pos/user"
 
 	"gorm.io/driver/mysql"
@@ -42,7 +43,10 @@ func NewConnection(path string) (*gorm.DB, error) {
 	}
 
 	// migartion schema
-	if err := db.AutoMigrate(&user.User{}); err != nil {
+	if err := db.AutoMigrate(
+		&user.User{},
+		&transaction.Transaction{},
+	); err != nil {
 		return db, fmt.Errorf(
 			"failed migration scheme : %v",
 			err.Error(),
