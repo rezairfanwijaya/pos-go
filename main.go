@@ -69,7 +69,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 			response := helper.GenerateResponse(
 				http.StatusUnauthorized,
 				"Unauthorized",
-				"Access denied",
+				"Access denied, login first",
 			)
 
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
