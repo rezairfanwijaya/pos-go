@@ -50,14 +50,74 @@ func (s *service) GetAllTransaction(params ParamsGetAllTransaction, url string) 
 	var paginationTransaction PaginationTransaction
 	offset := params.Page * params.Limit
 
-	_, _, _, err := s.transactionRepo.FindAll(params, offset)
+	transactions, totalData, totalPage, err := s.transactionRepo.FindAll(params, offset)
 	if err != nil {
 		return PaginationTransaction{}, err
 	}
 
-	paginationTransaction.FirstPage = fmt.Sprintf("%s", "lupa")
+	paginationTransaction.FirstPage = fmt.Sprintf(
+		"%s?page=%v&amount=%v&date=%v&type=%v&from=%v&to=%v&limit=%v",
+		url,
+		1,
+		params.Amount,
+		params.Date,
+		params.TransactionType,
+		params.FromAmount,
+		params.ToAmount,
+		params.Limit,
+	)
 
-	return PaginationTransaction{}, nil
+	paginationTransaction.LastPage = fmt.Sprintf(
+		"%s?page=%v&amount=%v&date=%v&type=%v&from=%v&to=%v&limit=%v",
+		url,
+		totalPage,
+		params.Amount,
+		params.Date,
+		params.TransactionType,
+		params.FromAmount,
+		params.ToAmount,
+		params.Limit,
+	)
+
+	if params.Page > 0 {
+		paginationTransaction.PreviousPage = fmt.Sprintf(
+			"%s?page=%v&amount=%v&date=%v&type=%v&from=%v&to=%v&limit=%v",
+			url,
+			params.Page-1,
+			params.Amount,
+			params.Date,
+			params.TransactionType,
+			params.FromAmount,
+			params.ToAmount,
+			params.Limit,
+		)
+	}
+
+	if params.Page < totalPage {
+		paginationTransaction.NextPage = fmt.Sprintf(
+			"%s?page=%v&amount=%v&date=%v&type=%v&from=%v&to=%v&limit=%v",
+			url,
+			params.Page+1,
+			params.Amount,
+			params.Date,
+			params.TransactionType,
+			params.FromAmount,
+			params.ToAmount,
+			params.Limit,
+		)
+	}
+
+	if params.Page > totalPage {
+		paginationTransaction.PreviousPage = ""
+	}
+
+	paginationTransaction.TotalData = totalData
+	paginationTransaction.Transactions = transactions
+	paginationTransaction.Limit = params.Limit
+	paginationTransaction.Page = params.Page
+	paginationTransaction.TotalPage = totalPage
+
+	return paginationTransaction, nil
 
 }
 
