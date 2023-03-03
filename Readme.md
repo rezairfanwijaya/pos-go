@@ -14,7 +14,7 @@ This repository provides services about managing transactions
 #### Go to the project directory
 
 ```bash
-  cd ps-go
+  cd pos-go
 ```
 
 #### Get Dependency
