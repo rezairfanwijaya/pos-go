@@ -125,12 +125,26 @@ func (h *transactionHandler) GetAllTransactions(c *gin.Context) {
 
 	path := c.Request.URL.Path
 	url := fmt.Sprintf("http://localhost:2222%v", path)
-	h.transactionService.GetAllTransaction(params, url)
 
-	c.JSON(200, map[string]interface{}{
-		"params": params,
-		"url":    url,
-	})
+	transactionsWithPagination, err := h.transactionService.GetAllTransaction(params, url)
+	if err != nil {
+		response := helper.GenerateResponse(
+			http.StatusBadRequest,
+			"failed to get transactions",
+			err.Error(),
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.GenerateResponse(
+		http.StatusOK,
+		"success",
+		transactionsWithPagination,
+	)
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *transactionHandler) UpdateTransactionByID(c *gin.Context) {
