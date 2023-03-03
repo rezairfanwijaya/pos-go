@@ -22,6 +22,8 @@ This repository provides services about managing transactions
   go mod tidy
 ```
 
+#### Open the project with your favorite text editor
+
 #### Setup ENV
 ##### Edit the .env.example file to .env and adjust it to the env that you will use
 ##### example :
