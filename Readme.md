@@ -1,6 +1,6 @@
 # POS system (income/expense transactions)
 
-This documentation provides a list of endpoints that can be used to manage transactions
+This repository provides services about managing transactions
 
 ## Run Locally
 
